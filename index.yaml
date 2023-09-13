@@ -1,0 +1,24 @@
+apiVersion: v1
+entries:
+  marge-bot:
+  - apiVersion: v2
+    appVersion: 0.11.0
+    created: "2023-09-13T15:40:51.17257406Z"
+    description: Marge-bot is a merge-bot for GitLab
+    digest: 23fb9905fe1ca76ba7ec601846a2c23eed8237198573def0a5c3387fd86bbe36
+    home: https://github.com/hiboxsystems/marge-bot
+    icon: https://upload.wikimedia.org/wikipedia/en/0/0b/Marge_Simpson.png
+    keywords:
+    - merge
+    - marge
+    - bot
+    - gitlab
+    maintainers:
+    - name: Netpositive
+      url: https://github.com/Netpositive/netpositive-helm-charts
+    name: marge-bot
+    type: application
+    urls:
+    - https://github.com/Netpositive/netpositive-helm-charts/releases/download/marge-bot-1.0.0/marge-bot-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-09-13T15:40:51.172586261Z"

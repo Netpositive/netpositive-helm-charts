@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "marge.fullname" . }}
+  labels:
+    {{- include "marge.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "marge.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "marge.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MARGE_GITLAB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "marge.fullname" . }}-secret
+                  key: gitlab-url
+            - name: MARGE_SSH_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "marge.fullname" . }}-secret
+                  key: ssh-key
+            - name: MARGE_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "marge.fullname" . }}-secret
+                  key: auth-token
+        {{- if or (.Values.args) (.Values.config) }}
+          args:
+          {{- with .Values.args }}
+              {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.config }}
+          - --config-file=/mnt/config/marge-bot-config.yaml
+          {{- end }}
+        {{- end}}
+          volumeMounts:
+          - name: tmp-volume
+            mountPath: /tmp
+          {{- if .Values.config }}
+          - name: config-volume
+            mountPath: /mnt/config
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+        - name: 'config-volume'
+          configMap:
+            name: {{ include "marge.fullname"  . }}-config
+        - name: 'tmp-volume'
+          emptyDir:
+            sizeLimit: 1Gi

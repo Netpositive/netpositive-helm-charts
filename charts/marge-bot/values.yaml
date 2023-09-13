@@ -1,0 +1,65 @@
+# Default values for marge.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# marge-bot arguments
+args: []
+# args: [
+#   "--impersonate-approvers",
+#   "--add-tested",
+#   "--add-reviewers",
+#   "--add-part-of"
+# ]
+
+# secrets will be set as env vars in the container
+secret:
+  gitlabUrl: "https://gitlab.com"
+  # ssh private key must already be in base64 format, use this command on
+  # yours: base64 -w0 <my_private_key>
+  sshKey: ""
+  authToken: ""
+
+# marge-bot config file content
+config: ""
+# config: |-
+#   branch-regexp: .*
+#   batch: false
+#   impersonate-approvers: true
+#   project-regexp: .*
+#   # allowing any of the following makes MRs with "squash commits" unmergeable by marge-bot
+#   add-part-of: false
+#   add-reviewers: false
+#   add-tested: false
+
+
+replicaCount: 1
+
+image:
+  repository: hiboxsystems/marge-bot
+  pullPolicy: IfNotPresent
+  # Use Chart.appVersion if empty
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
